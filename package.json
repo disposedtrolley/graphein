@@ -10,14 +10,15 @@
 		"Other"
 	],
 	"activationEvents": [
-        "onCommand:graphein.helloWorld"
+        "onCommand:graphein.newMap"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "graphein.helloWorld",
-				"title": "Hello World"
+				"command": "graphein.newMap",
+				"title": "New Map",
+				"category": "Graphein"
 			}
 		]
 	},
