@@ -19,7 +19,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "./scripts/build-non-split.js && mv build ../react-build",
+    "build": "./scripts/build-non-split.js && rm -r ../react-build && mv build ../react-build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
