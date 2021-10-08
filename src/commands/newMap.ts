@@ -71,8 +71,6 @@ const getReactWebviewContent = (args: {
     </head>
 
     <body>
-        <h1>Hello</h1>
-        <noscript>You need to enable JavaScript to run this app.</noscript>
         <div id="root"></div>
         
         <script src="${args.scripts}"></script>
