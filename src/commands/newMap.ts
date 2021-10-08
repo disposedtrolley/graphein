@@ -11,53 +11,75 @@ interface NewMapArgs {
 export const newMap = (args: NewMapArgs) => {
   vscode.window.showInformationMessage("Hello World from graphein!");
 
+  const reactBuildPath = path.join(args.extensionPath, REACT_BUILD_FOLDER);
+
   const panel = vscode.window.createWebviewPanel(
     "grapheinMap",
     "Graphein - Map",
     vscode.ViewColumn.Two,
     {
       enableScripts: true,
-      localResourceRoots: [
-        vscode.Uri.file(path.join(args.extensionPath, REACT_BUILD_FOLDER)),
-      ],
+      localResourceRoots: [vscode.Uri.file(reactBuildPath)],
     }
   );
 
-  panel.webview.html = getWebviewContent();
-  console.log(getReactManifest(args.extensionPath));
+  const manifest = getReactManifest(reactBuildPath);
+
+  panel.webview.html = getReactWebviewContent({
+    base: filePathToVSCodeResource(reactBuildPath),
+    styles: filePathToVSCodeResource(
+      path.join(reactBuildPath, manifest.mainCSSPath)
+    ),
+    scripts: filePathToVSCodeResource(
+      path.join(reactBuildPath, manifest.mainJSPath)
+    ),
+  });
 };
 
 interface ReactManifest {
   mainJSPath: string;
   mainCSSPath: string;
-  indexHTMLPath: string;
 }
 
-const getReactManifest = (basePath: string): ReactManifest => {
-  const buildPath = path.join(basePath, REACT_BUILD_FOLDER);
-  const manifestPath = path.join(buildPath, "asset-manifest.json");
+const getReactManifest = (reactBuildPath: string): ReactManifest => {
+  const manifestPath = path.join(reactBuildPath, "asset-manifest.json");
 
   const manifest = fs.readFileSync(manifestPath);
   const manifestJSON = JSON.parse(manifest.toString());
   const manifestJSONFiles = manifestJSON["files"];
 
   return {
-    indexHTMLPath: path.join(buildPath, manifestJSONFiles["index.html"]),
-    mainJSPath: path.join(buildPath, manifestJSONFiles["main.js"]),
-    mainCSSPath: path.join(buildPath, manifestJSONFiles["main.css"]),
+    mainJSPath: manifestJSONFiles["main.js"],
+    mainCSSPath: manifestJSONFiles["main.css"],
   };
 };
 
-const getWebviewContent = () => {
+const getReactWebviewContent = (args: {
+  base: vscode.Uri;
+  styles: vscode.Uri;
+  scripts: vscode.Uri;
+}) => {
   return `<!DOCTYPE html>
-      <html lang="en">
-      <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Cat Coding</title>
-      </head>
-      <body>
-          <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="300" />
-      </body>
-      </html>`;
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+        <meta name="theme-color" content="#000000">
+        <title>React App</title>
+        <link rel="stylesheet" type="text/css" href="${args.styles}">
+        <base href="${args.base}/">
+    </head>
+
+    <body>
+        <h1>Hello</h1>
+        <noscript>You need to enable JavaScript to run this app.</noscript>
+        <div id="root"></div>
+        
+        <script src="${args.scripts}"></script>
+    </body>
+    </html>`;
+};
+
+const filePathToVSCodeResource = (filepath: string): vscode.Uri => {
+  return vscode.Uri.file(filepath).with({ scheme: "vscode-resource" });
 };
