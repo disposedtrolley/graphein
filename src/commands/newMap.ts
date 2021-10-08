@@ -1,13 +1,20 @@
+import * as path from "path";
 import * as vscode from "vscode";
 
-export const newMap = () => {
+interface newMapArgs {
+    extensionPath: string
+}
+
+export const newMap = (args: newMapArgs) => {
   vscode.window.showInformationMessage("Hello World from graphein!");
 
   const panel = vscode.window.createWebviewPanel(
     "grapheinMap",
     "Graphein - Map",
     vscode.ViewColumn.Two,
-    {}
+    {
+        enableScripts: true,
+    }
   );
 
   panel.webview.html = getWebviewContent();
