@@ -63,7 +63,11 @@ export const Graph = (props: { nodes: Node[]; edges: Edge[] }) => {
   const graphRef = useRef(null);
 
   useEffect(() => {
-    (graphRef as any).current.panToNode(props.nodes[props.nodes.length - 1].id);
+    return () => {
+      (graphRef as any).current.panToNode(
+        props.nodes[props.nodes.length - 1].id
+      );
+    };
   }, [props.nodes]);
 
   return (
