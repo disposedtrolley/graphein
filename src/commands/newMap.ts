@@ -34,6 +34,10 @@ export const newMap = (args: NewMapArgs) => {
       path.join(reactBuildPath, manifest.mainJSPath)
     ),
   });
+
+  setInterval(() => {
+    panel.webview.postMessage({ command: "refactor", payload: "foobar" });
+  }, 5000);
 };
 
 interface ReactManifest {
