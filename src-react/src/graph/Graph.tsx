@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useCallback, useRef } from "react";
 import { GraphView, IEdge, INode } from "react-digraph";
 
 interface Node {
@@ -60,9 +60,15 @@ const config = {
 };
 
 export const Graph = (props: { nodes: Node[]; edges: Edge[] }) => {
+  const graphRef = useRef(null);
+
+  useEffect(() => {
+    (graphRef as any).current.panToNode(props.nodes[props.nodes.length - 1].id);
+  }, [props.nodes]);
+
   return (
     <GraphView
-      ref={React.createRef()}
+      ref={graphRef}
       nodeKey="id"
       nodes={props.nodes.map((n) => n.data)}
       edges={props.edges.map((e) => e.data)}
