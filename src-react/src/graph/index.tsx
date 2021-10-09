@@ -1,1 +1,1 @@
-export { Graph } from "./Graph";
+export { Graph, newNode, newEdge } from "./Graph";

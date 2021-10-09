@@ -1,8 +1,44 @@
 import React from "react";
-import { GraphView } from "react-digraph";
+import { GraphView, IEdge, INode } from "react-digraph";
 
-const GraphConfig = {
-  NodeTypes: {
+interface Node {
+  id: string;
+  data: INode;
+}
+export const newNode = (
+  id: string,
+  text: string,
+  x: number,
+  y: number
+): Node => {
+  return {
+    id,
+    data: {
+      id,
+      title: text,
+      x: x,
+      y: y,
+      type: "grapheinNode",
+    },
+  };
+};
+
+interface Edge {
+  data: IEdge;
+}
+
+export const newEdge = (from: Node, to: Node): Edge => {
+  return {
+    data: {
+      source: from.id,
+      target: to.id,
+      type: "grapheinConnection",
+    },
+  };
+};
+
+const config = {
+  nodeTypes: {
     grapheinNode: {
       shapeId: "#grapheinNode",
       shape: (
@@ -12,8 +48,8 @@ const GraphConfig = {
       ),
     },
   },
-  NodeSubtypes: {},
-  EdgeTypes: {
+  nodeSubtypes: {},
+  edgeTypes: {
     grapheinConnection: {
       shapeId: "#grapheinConnection",
       shape: (
@@ -23,48 +59,16 @@ const GraphConfig = {
   },
 };
 
-export const Graph = () => {
-  const graph = {
-    nodes: [
-      {
-        id: 1,
-        title: "Node A",
-        x: 258.3976135253906,
-        y: 331.9783248901367,
-        type: "grapheinNode",
-      },
-      {
-        id: 2,
-        title: "Node B",
-        x: 593.9393920898438,
-        y: 260.6060791015625,
-        type: "grapheinNode",
-      },
-    ],
-    edges: [
-      {
-        source: 1,
-        target: 2,
-        type: "grapheinConnection",
-      },
-    ],
-  };
-  const nodes = graph.nodes;
-  const edges = graph.edges;
-
-  const NodeTypes = GraphConfig.NodeTypes;
-  const NodeSubtypes = GraphConfig.NodeSubtypes;
-  const EdgeTypes = GraphConfig.EdgeTypes;
-
+export const Graph = (props: { nodes: Node[]; edges: Edge[] }) => {
   return (
     <GraphView
       ref={React.createRef()}
       nodeKey="id"
-      nodes={nodes}
-      edges={edges}
-      nodeTypes={NodeTypes}
-      nodeSubtypes={NodeSubtypes}
-      edgeTypes={EdgeTypes}
+      nodes={props.nodes.map((n) => n.data)}
+      edges={props.edges.map((e) => e.data)}
+      nodeTypes={config.nodeTypes}
+      nodeSubtypes={config.nodeSubtypes}
+      edgeTypes={config.edgeTypes}
       allowMultiselect={false}
       renderNodeText={(
         data: { title: string },
