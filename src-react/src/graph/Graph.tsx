@@ -1,5 +1,8 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { GraphView, IEdge, INode } from "react-digraph";
+
+const KIND_NODE = "grapheinNode";
+const KIND_EDGE = "grapheinEdge";
 
 interface Node {
   id: string;
@@ -18,7 +21,7 @@ export const newNode = (
       title: text,
       x: x,
       y: y,
-      type: "grapheinNode",
+      type: KIND_NODE,
     },
   };
 };
@@ -32,7 +35,7 @@ export const newEdge = (from: Node, to: Node): Edge => {
     data: {
       source: from.id,
       target: to.id,
-      type: "grapheinConnection",
+      type: KIND_EDGE,
     },
   };
 };
@@ -40,13 +43,13 @@ export const newEdge = (from: Node, to: Node): Edge => {
 const config = {
   nodeTypes: {
     grapheinNode: {
-      shapeId: "#grapheinNode",
+      shapeId: `#${KIND_NODE}`,
       shape: (
         <symbol
           width="200"
           height="100"
           viewBox="0 0 200 100"
-          id="grapheinNode"
+          id={KIND_NODE}
           key="0"
         >
           <rect width="100%" height="100%" rx="15"></rect>
@@ -57,10 +60,8 @@ const config = {
   nodeSubtypes: {},
   edgeTypes: {
     grapheinConnection: {
-      shapeId: "#grapheinConnection",
-      shape: (
-        <symbol viewBox="0 0 50 50" id="grapheinConnection" key="0"></symbol>
-      ),
+      shapeId: `#${KIND_EDGE}`,
+      shape: <symbol viewBox="0 0 50 50" id={KIND_EDGE} key="0"></symbol>,
     },
   },
 };
