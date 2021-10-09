@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Graph, newNode, newEdge } from "./graph";
 
@@ -10,7 +10,7 @@ function App() {
 
   let [edges, setEdges] = useState([newEdge(nodes[0], nodes[1])]);
 
-  const newRandomNode = () => {
+  const newRandomNode = useCallback(() => {
     const lastNode = nodes[nodes.length - 1];
     const id = uuidv4();
     const n = newNode(
@@ -20,19 +20,22 @@ function App() {
       lastNode!.data!.y!
     );
     return [lastNode, n];
-  };
+  }, [nodes]);
 
-  const newNodeFromEvent = (event: { data: { command: string } }) => {
-    const message = event.data; // The JSON data our extension sent
-    switch (message.command) {
-      case "refactor":
-        console.log(message);
-        const [lastNode, n] = newRandomNode();
-        setNodes([...nodes, n]);
-        setEdges([...edges, newEdge(lastNode!, n)]);
-        break;
-    }
-  };
+  const newNodeFromEvent = useCallback(
+    (event: { data: { command: string } }) => {
+      const message = event.data; // The JSON data our extension sent
+      switch (message.command) {
+        case "refactor":
+          console.log(message);
+          const [lastNode, n] = newRandomNode();
+          setNodes([...nodes, n]);
+          setEdges([...edges, newEdge(lastNode!, n)]);
+          break;
+      }
+    },
+    [nodes, edges, newRandomNode]
+  );
 
   useEffect(() => {
     window.addEventListener("message", newNodeFromEvent);
