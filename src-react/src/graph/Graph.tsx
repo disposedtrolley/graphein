@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { GraphView, IEdge, INode } from "react-digraph";
 
 interface Node {
@@ -42,7 +42,7 @@ const config = {
     grapheinNode: {
       shapeId: "#grapheinNode",
       shape: (
-        <symbol viewBox="0 0 200 100" id="grapheinNode" key="0">
+        <symbol viewBox="0 0 500 200" id="grapheinNode" key="0">
           <rect width="100%" height="100%" rx="15"></rect>
         </symbol>
       ),
@@ -80,11 +80,7 @@ export const Graph = (props: { nodes: Node[]; edges: Edge[] }) => {
       nodeSubtypes={config.nodeSubtypes}
       edgeTypes={config.edgeTypes}
       allowMultiselect={false}
-      renderNodeText={(
-        data: { title: string },
-        id: string | number,
-        isSelected: boolean
-      ) => {
+      renderNodeText={(data: { title: string }) => {
         return (
           <text
             ref={React.createRef()}
