@@ -42,7 +42,13 @@ const config = {
     grapheinNode: {
       shapeId: "#grapheinNode",
       shape: (
-        <symbol viewBox="0 0 500 200" id="grapheinNode" key="0">
+        <symbol
+          width="200"
+          height="100"
+          viewBox="0 0 200 100"
+          id="grapheinNode"
+          key="0"
+        >
           <rect width="100%" height="100%" rx="15"></rect>
         </symbol>
       ),
@@ -80,20 +86,18 @@ export const Graph = (props: { nodes: Node[]; edges: Edge[] }) => {
       nodeSubtypes={config.nodeSubtypes}
       edgeTypes={config.edgeTypes}
       allowMultiselect={false}
-      renderNodeText={(data: { title: string }) => {
-        return (
-          <text
-            ref={React.createRef()}
-            className="node-text"
-            text-anchor="middle"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <tspan font-size="10px" xmlns="http://www.w3.org/2000/svg">
-              {data.title}
-            </tspan>
-          </text>
-        );
-      }}
+      renderNodeText={renderNodeText}
     />
+  );
+};
+
+const renderNodeText = (data: { title: string }) => {
+  console.log(data);
+  return (
+    <foreignObject x="-100" y="-50" width="200" height="100">
+      <div style={{ padding: 10, textAlign: "center", color: "black" }}>
+        <p style={{ fontSize: "10px" }}>{data.title}</p>
+      </div>
+    </foreignObject>
   );
 };
