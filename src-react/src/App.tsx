@@ -2,6 +2,19 @@ import { Fragment, useEffect, useState, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Graph, newNode, newEdge } from "./graph";
 
+enum EditorAction {
+  didChangeOpenFile = "didChangeOpenFile",
+}
+
+interface EditorEvent {
+  action: EditorAction;
+  payload: EditorEventPayload;
+}
+
+interface EditorEventPayload {
+  filename: string;
+}
+
 function App() {
   let [nodes, setNodes] = useState([
     newNode(uuidv4(), "Node A", 258.3976135253906, 331.9783248901367),
@@ -10,25 +23,28 @@ function App() {
 
   let [edges, setEdges] = useState([newEdge(nodes[0], nodes[1])]);
 
-  const newRandomNode = useCallback(() => {
-    const lastNode = nodes[nodes.length - 1];
-    const id = uuidv4();
-    const n = newNode(
-      id,
-      `Node ${id}`,
-      lastNode!.data!.x! + 300,
-      lastNode!.data!.y!
-    );
-    return [lastNode, n];
-  }, [nodes]);
+  const newRandomNode = useCallback(
+    (text: string | null) => {
+      const lastNode = nodes[nodes.length - 1];
+      const id = uuidv4();
+      const n = newNode(
+        id,
+        text || `Node ${id}`,
+        lastNode!.data!.x! + 300,
+        lastNode!.data!.y!
+      );
+      return [lastNode, n];
+    },
+    [nodes]
+  );
 
   const newNodeFromEvent = useCallback(
-    (event: { data: { command: string } }) => {
+    (event: { data: EditorEvent }) => {
       const message = event.data; // The JSON data our extension sent
-      switch (message.command) {
-        case "refactor":
+      switch (message.action) {
+        case EditorAction.didChangeOpenFile:
           console.log(message);
-          const [lastNode, n] = newRandomNode();
+          const [lastNode, n] = newRandomNode(message.payload.filename);
           setNodes([...nodes, n]);
           setEdges([...edges, newEdge(lastNode!, n)]);
           break;
@@ -50,7 +66,7 @@ function App() {
       <Graph nodes={nodes} edges={edges} />;
       <button
         onClick={() => {
-          const [lastNode, n] = newRandomNode();
+          const [lastNode, n] = newRandomNode(null);
           setNodes([...nodes, n]);
           setEdges([...edges, newEdge(lastNode!, n)]);
         }}

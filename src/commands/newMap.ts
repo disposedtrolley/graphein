@@ -4,6 +4,19 @@ import * as vscode from "vscode";
 
 const REACT_BUILD_FOLDER = "react-build";
 
+enum EditorAction {
+  didChangeOpenFile = "didChangeOpenFile",
+}
+
+interface EditorEvent {
+  action: EditorAction;
+  payload: EditorEventPayload;
+}
+
+interface EditorEventPayload {
+  filename: string;
+}
+
 interface NewMapArgs {
   extensionPath: string;
 }
@@ -35,9 +48,19 @@ export const newMap = (args: NewMapArgs) => {
     ),
   });
 
-  setInterval(() => {
-    panel.webview.postMessage({ command: "refactor", payload: "foobar" });
-  }, 5000);
+  vscode.window.onDidChangeActiveTextEditor(
+    (editor: vscode.TextEditor | undefined) => {
+      setTimeout(() => {
+        // Why the timeout? https://github.com/microsoft/vscode/issues/114047
+        panel.webview.postMessage({
+          action: events.EditorAction.didChangeOpenFile,
+          payload: {
+            filename: `${editor?.document.fileName}`,
+          },
+        });
+      }, 1);
+    }
+  );
 };
 
 interface ReactManifest {
