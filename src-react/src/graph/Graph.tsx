@@ -70,11 +70,13 @@ export const Graph = (props: { nodes: Node[]; edges: Edge[] }) => {
   const graphRef = useRef(null);
 
   useEffect(() => {
-    return () => {
-      (graphRef as any).current.panToNode(
-        props.nodes[props.nodes.length - 1].id
-      );
-    };
+    const newestNode = props.nodes[props.nodes.length - 1];
+    // I have absolutely no clue why a timeout is required here (maybe react-digraph)
+    // takes time to do some internal rendering???), but without the timeout, we can't
+    // pan the view to the most recently added node.
+    setTimeout(() => {
+      (graphRef as any).current.panToNode(newestNode.id);
+    }, 10);
   }, [props.nodes]);
 
   return (
@@ -93,7 +95,6 @@ export const Graph = (props: { nodes: Node[]; edges: Edge[] }) => {
 };
 
 const renderNodeText = (data: { title: string }) => {
-  console.log(data);
   return (
     <foreignObject x="-100" y="-50" width="200" height="100">
       <div style={{ padding: 10, textAlign: "center", color: "black" }}>
