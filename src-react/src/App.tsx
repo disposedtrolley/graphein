@@ -58,8 +58,7 @@ function App() {
     return () => {
       window.removeEventListener("message", newNodeFromEvent);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nodes]);
+  }, [nodes, newNodeFromEvent]);
 
   return (
     <Fragment>
