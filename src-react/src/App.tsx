@@ -63,7 +63,9 @@ function App() {
       switch (message.action) {
         case EditorAction.didChangeOpenFile:
           console.log(message);
-          const [lastNode, n] = newRandomNode(message.payload.to.filename);
+          const [lastNode, n] = newRandomNode(
+            `${message.payload.to.intellisense?.function} -- ${message.payload.to.filename}`
+          );
           setNodes([...nodes, n]);
           setEdges([...edges, newEdge(lastNode!, n)]);
           break;
