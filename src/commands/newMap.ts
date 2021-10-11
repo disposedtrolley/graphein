@@ -77,7 +77,7 @@ export const newMap = (args: NewMapArgs) => {
   vscode.window.onDidChangeActiveTextEditor(
     (editor: vscode.TextEditor | undefined) => {
       // Why the timeout? https://github.com/microsoft/vscode/issues/114047
-      setTimeout(() => {
+      setTimeout(async () => {
         if (!editor) {
           return;
         }
@@ -107,6 +107,39 @@ export const newMap = (args: NewMapArgs) => {
               workspaceRoot
             ),
             position: currentEditor!.selection.active,
+          };
+        }
+
+        const symbolsTo = symbolsAtPoint(
+          await symbolsInDocument(editor.document.uri),
+          editor.selection.active
+        );
+        console.log("SYMBOLS_TO:");
+        console.log(symbolsTo);
+
+        let symbolsFrom: vscode.SymbolInformation[] = [];
+        if (currentEditor) {
+          symbolsFrom = symbolsAtPoint(
+            await symbolsInDocument(currentEditor.document.uri),
+            editor.selection.active
+          );
+        }
+
+        console.log("SYMBOLS_FROM:");
+        console.log(symbolsFrom);
+
+        const fromSymbol = symbolsFrom.length > 0 ? symbolsFrom[0].name : null;
+        const toSymbol = symbolsTo.length > 0 ? symbolsTo[0].name : null;
+
+        if (fromSymbol) {
+          payload.from!.intellisense = {
+            function: fromSymbol,
+          };
+        }
+
+        if (toSymbol) {
+          payload.to!.intellisense = {
+            function: toSymbol,
           };
         }
 
