@@ -150,6 +150,23 @@ interface ReactManifest {
   mainCSSPath: string;
 }
 
+const symbolsInDocument = async (
+  uri: vscode.Uri
+): Promise<vscode.SymbolInformation[]> => {
+  const res = await vscode.commands.executeCommand(
+    "vscode.executeDocumentSymbolProvider",
+    uri
+  );
+  return res as vscode.SymbolInformation[];
+};
+
+const symbolsAtPoint = (
+  symbols: vscode.SymbolInformation[],
+  p: vscode.Position
+): vscode.SymbolInformation[] => {
+  return symbols.filter((s) => s.location.range.contains(p));
+};
+
 const getReactManifest = (reactBuildPath: string): ReactManifest => {
   const manifestPath = path.join(reactBuildPath, "asset-manifest.json");
 
