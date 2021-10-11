@@ -42,6 +42,14 @@ export const newMap = (args: NewMapArgs) => {
   let currentEditor: vscode.TextEditor | undefined;
   currentEditor = vscode.window.activeTextEditor;
 
+  if (!vscode.workspace.workspaceFolders) {
+    return;
+  }
+
+  let workspaceRoot = vscode.workspace.workspaceFolders[0].uri.path;
+
+  console.log(workspaceRoot);
+
   const reactBuildPath = path.join(args.extensionPath, REACT_BUILD_FOLDER);
 
   const panel = vscode.window.createWebviewPanel(
@@ -80,7 +88,10 @@ export const newMap = (args: NewMapArgs) => {
               editor.document.fileName,
               editor.selection.active
             ),
-            filename: editor.document.fileName,
+            filename: getRelativeFilename(
+              editor.document.fileName,
+              workspaceRoot
+            ),
             position: editor.selection.active,
           },
         };
@@ -91,7 +102,10 @@ export const newMap = (args: NewMapArgs) => {
               currentEditor!.document.fileName,
               currentEditor!.selection.active
             ),
-            filename: currentEditor!.document.fileName,
+            filename: getRelativeFilename(
+              currentEditor!.document.fileName,
+              workspaceRoot
+            ),
             position: currentEditor!.selection.active,
           };
         }
@@ -107,6 +121,11 @@ export const newMap = (args: NewMapArgs) => {
       }, 1);
     }
   );
+};
+
+const getRelativeFilename = (filename: string, workspaceRoot: string) => {
+  // ugh
+  return filename.replace(workspaceRoot, "").replace("/", "");
 };
 
 const getEditorNodeKey = (
