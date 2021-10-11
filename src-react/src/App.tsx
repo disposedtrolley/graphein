@@ -12,7 +12,26 @@ interface EditorEvent {
 }
 
 interface EditorEventPayload {
+  from: EditorNode;
+  to: EditorNode;
+}
+
+interface EditorPosition {
+  line: number;
+  character: number;
+}
+
+type EditorNodeKey = string;
+
+interface EditorNode {
+  key: EditorNodeKey;
   filename: string;
+  position: EditorPosition;
+  intellisense?: EditorNodeIntellisense;
+}
+
+interface EditorNodeIntellisense {
+  function: string;
 }
 
 function App() {
@@ -44,7 +63,7 @@ function App() {
       switch (message.action) {
         case EditorAction.didChangeOpenFile:
           console.log(message);
-          const [lastNode, n] = newRandomNode(message.payload.filename);
+          const [lastNode, n] = newRandomNode(message.payload.to.filename);
           setNodes([...nodes, n]);
           setEdges([...edges, newEdge(lastNode!, n)]);
           break;

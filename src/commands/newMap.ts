@@ -1,6 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import * as vscode from "vscode";
+import { createHash } from "crypto";
 
 const REACT_BUILD_FOLDER = "react-build";
 
@@ -14,7 +15,21 @@ interface EditorEvent {
 }
 
 interface EditorEventPayload {
+  from?: EditorNode;
+  to: EditorNode;
+}
+
+type EditorNodeKey = string;
+
+interface EditorNode {
+  key: EditorNodeKey;
   filename: string;
+  position: vscode.Position;
+  intellisense?: EditorNodeIntellisense;
+}
+
+interface EditorNodeIntellisense {
+  function: string;
 }
 
 interface NewMapArgs {
@@ -22,7 +37,10 @@ interface NewMapArgs {
 }
 
 export const newMap = (args: NewMapArgs) => {
-  vscode.window.showInformationMessage("Hello World from graphein!");
+  // Is it okay to declare this within the handler func? I'm not sure about
+  // its lifetime...
+  let currentEditor: vscode.TextEditor | undefined;
+  currentEditor = vscode.window.activeTextEditor;
 
   const reactBuildPath = path.join(args.extensionPath, REACT_BUILD_FOLDER);
 
@@ -50,17 +68,62 @@ export const newMap = (args: NewMapArgs) => {
 
   vscode.window.onDidChangeActiveTextEditor(
     (editor: vscode.TextEditor | undefined) => {
+      // Why the timeout? https://github.com/microsoft/vscode/issues/114047
       setTimeout(() => {
-        // Why the timeout? https://github.com/microsoft/vscode/issues/114047
-        panel.webview.postMessage({
-          action: EditorAction.didChangeOpenFile,
-          payload: {
-            filename: `${editor?.document.fileName}`,
+        if (!editor) {
+          return;
+        }
+
+        let payload: EditorEventPayload = {
+          to: {
+            key: getEditorNodeKey(
+              editor.document.fileName,
+              editor.selection.active
+            ),
+            filename: editor.document.fileName,
+            position: editor.selection.active,
           },
+        };
+
+        if (currentEditor) {
+          payload.from = {
+            key: getEditorNodeKey(
+              currentEditor!.document.fileName,
+              currentEditor!.selection.active
+            ),
+            filename: currentEditor!.document.fileName,
+            position: currentEditor!.selection.active,
+          };
+        }
+
+        console.log(payload);
+
+        sendWebviewMessage(panel.webview, {
+          action: EditorAction.didChangeOpenFile,
+          payload,
         });
+
+        currentEditor = editor;
       }, 1);
     }
   );
+};
+
+const getEditorNodeKey = (
+  filename: string,
+  position: vscode.Position
+): EditorNodeKey => {
+  const posAsString = `${position.line}:${position.character}`;
+  return createHash("sha256")
+    .update(`${filename}_${posAsString}`)
+    .digest("hex");
+};
+
+const sendWebviewMessage = (
+  destination: vscode.Webview,
+  message: EditorEvent
+) => {
+  destination.postMessage(message);
 };
 
 interface ReactManifest {
