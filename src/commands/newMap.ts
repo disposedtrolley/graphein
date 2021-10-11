@@ -53,7 +53,7 @@ export const newMap = (args: NewMapArgs) => {
       setTimeout(() => {
         // Why the timeout? https://github.com/microsoft/vscode/issues/114047
         panel.webview.postMessage({
-          action: events.EditorAction.didChangeOpenFile,
+          action: EditorAction.didChangeOpenFile,
           payload: {
             filename: `${editor?.document.fileName}`,
           },
